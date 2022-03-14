@@ -2,13 +2,13 @@ import os
 import re
 import textwrap
 
-import discord
+import nextcord
 import kadal
 
 from dateutil.parser import parse
 
 
-class TachiBoti(discord.Client):
+class TachiBoti(nextcord.Client):
     def __init__(self):
         super().__init__()
         # Note: this uses an OR regex hack.
@@ -53,7 +53,7 @@ class TachiBoti(discord.Client):
         color_hex = media.cover_color or "2F3136"
         embed_color = int(color_hex.lstrip('#'), 16)
         title = self.get_title(media)
-        e = discord.Embed(title=title, description=desc, color=embed_color)
+        e = nextcord.Embed(title=title, description=desc, color=embed_color)
         e.set_footer(text=f"{footer_text} • {status_text}",
                      icon_url="https://anilist.co/img/logo_al.png")
         e.set_image(url=f"{self.anilist_cover_url}{media.id}")
@@ -67,7 +67,7 @@ class TachiBoti(discord.Client):
         m_clean = list(filter(bool, m))
         if m_clean:
             async with message.channel.typing():
-                embed = discord.Embed()
+                embed = nextcord.Embed()
                 if len(m_clean) > 1:
                     fmt = ""
                     for name in m_clean:
@@ -78,7 +78,7 @@ class TachiBoti(discord.Client):
                         except kadal.MediaNotFound:
                             pass
                     embed.description = fmt
-                    embed.color = discord.Color(0x2f3136)
+                    embed.color = nextcord.Color(0x2f3136)
                 else:
                     embed = await self.format_embed(m_clean[0], media, search_method, allow_adult=allow_adult)
                     if not embed:
@@ -101,19 +101,7 @@ class TachiBoti(discord.Client):
         print("~-~-~-~-~-~-~-~-~-~-~")
         print("Ready!")
 
-    async def on_member_join(self, member):
-        if member.guild.id != self.tachi_id:
-            return
-        try:
-            await member.send("""
-Welcome to Tachiyomi!\n
-Before asking anything in <#349436576037732355>, please make sure to check the <#403520500443119619> channel, \
-there's a very high chance you won't even have to ask.
-Most if not all entries in <#403520500443119619> are up to date, \
-and the channel is updated regularly to reflect the status of extensions and the app in general.
-            """)  # noqa
-        except discord.errors.Forbidden:  # Can't DM member, give up.
-            pass
+
 
 
 bot = TachiBoti()
